@@ -1,6 +1,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE TypeFamilies               #-}
+{-# LANGUAGE UndecidableInstances       #-}
 module Network.Beeminder
         ( -- * API calls
           user
@@ -41,15 +42,16 @@ import           Control.Monad.Base
 import           Control.Monad.Reader
 import           Control.Monad.Trans.Control
 import           Control.Monad.Trans.Maybe
+import           Control.Monad.Trans.Resource
 import           Data.Aeson
 import           Data.Conduit
 import           Data.Default.Class
-import           Network.Beeminder.Internal  hiding (allGoals, createGoal,
-                                              createPoint, createPointNotify,
-                                              createPoints, createPointsNotify,
-                                              deletePoint, goal, points,
-                                              updatePoint, user)
-import qualified Network.Beeminder.Internal  as Internal
+import           Network.Beeminder.Internal   hiding (allGoals, createGoal,
+                                               createPoint, createPointNotify,
+                                               createPoints, createPointsNotify,
+                                               deletePoint, goal, points,
+                                               updatePoint, user)
+import qualified Network.Beeminder.Internal   as Internal
 import           Network.HTTP.Conduit
 
 data BeeminderEnvironment = BeeminderEnvironment
@@ -59,7 +61,7 @@ data BeeminderEnvironment = BeeminderEnvironment
 
 type Beeminder_ = MaybeT (ReaderT BeeminderEnvironment (ResourceT IO))
 newtype Beeminder a = Beeminder { unBeeminder :: Beeminder_ a }
-        deriving (Functor, Applicative, Monad, MonadIO, MonadReader BeeminderEnvironment, MonadThrow, MonadUnsafeIO, MonadResource, MonadBase IO)
+        deriving (Functor, Applicative, Monad, MonadIO, MonadReader BeeminderEnvironment, MonadThrow, MonadResource, MonadBase IO)
 
 -- The following instance (and the "deriving" clause for MonadThrow,
 -- MonadUnsafeIO, MonadResource, and MonadBase IO) were copied basically
@@ -67,15 +69,15 @@ newtype Beeminder a = Beeminder { unBeeminder :: Beeminder_ a }
 -- typechecking" rather than with some deep understanding of what's happening.
 -- So it wouldn't surprise me if there's bugs here.
 instance MonadBaseControl IO Beeminder where
-        data StM Beeminder a = StM !(StM Beeminder_ a)
-        liftBaseWith f = Beeminder (liftBaseWith (\g -> f (\(Beeminder m) -> StM <$> g m)))
-        restoreM (StM v) = Beeminder (restoreM v)
+        type StM Beeminder a = StM Beeminder_ a
+        liftBaseWith f = Beeminder (liftBaseWith (\g -> f (\(Beeminder m) -> g m)))
+        restoreM v = Beeminder (restoreM v)
 
 -- | Run a beeminder computation with the given authentication token,
 --   possibly returning a result.
 runBeeminder :: Token -> Beeminder a -> IO (Maybe a)
 runBeeminder t m = do
-        man <- newManager conduitManagerSettings
+        man <- newManager tlsManagerSettings
         runResourceT (runReaderT (runMaybeT (unBeeminder m)) BeeminderEnvironment { token = t, manager = man })
 
 -- | Turn a raw operation taking a token and returning a 'Request'

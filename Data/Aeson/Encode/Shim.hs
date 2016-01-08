@@ -35,7 +35,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 -}
 
-{-# LANGUAGE CPP, BangPatterns, OverloadedStrings #-}
+{-# LANGUAGE BangPatterns      #-}
+{-# LANGUAGE CPP               #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -56,23 +58,27 @@ POSSIBILITY OF SUCH DAMAGE.
 
 module Data.Aeson.Encode.Shim (encode) where
 
-import Data.Aeson.Types (Value(..))
-import Data.Monoid (mappend)
-import Data.Scientific (Scientific, coefficient, base10Exponent, formatScientificBuilder, FPFormat(Fixed))
-import Data.Text.Lazy.Builder
-import Data.Text.Lazy.Builder.Int (decimal)
-import Numeric (showHex)
-import qualified Data.HashMap.Strict as H
-import qualified Data.Text as T
-import qualified Data.Vector as V
+import           Data.Aeson.Types                  (Value (..))
+import qualified Data.HashMap.Strict               as H
+import           Data.Monoid                       (mappend)
+import           Data.Scientific                   (FPFormat (Fixed),
+                                                    Scientific, base10Exponent,
+                                                    coefficient)
+import qualified Data.Text                         as T
+import           Data.Text.Lazy.Builder
+import           Data.Text.Lazy.Builder.Int        (decimal)
+import           Data.Text.Lazy.Builder.Scientific (formatScientificBuilder)
+import qualified Data.Vector                       as V
+import           Numeric                           (showHex)
 
 #if MIN_VERSION_bytestring(0,10,4)
-import Data.Aeson.Encode.ByteString (encode, encodeToByteStringBuilder)
+import           Data.Aeson.Encode                 (encode,
+                                                    encodeToByteStringBuilder)
 #else
-import Data.Aeson.Types (ToJSON(toJSON))
-import qualified Data.ByteString.Lazy    as BL
-import qualified Data.Text.Lazy.Builder  as TLB
-import qualified Data.Text.Lazy.Encoding as TLE
+import           Data.Aeson.Types                  (ToJSON (toJSON))
+import qualified Data.ByteString.Lazy              as BL
+import qualified Data.Text.Lazy.Builder            as TLB
+import qualified Data.Text.Lazy.Encoding           as TLE
 
 -- | Encode a JSON 'Value' as a UTF-8 encoded 'BL.ByteString'.
 encode :: ToJSON a => a -> BL.ByteString

@@ -10,12 +10,12 @@ import           Control.Monad.IO.Class
 import           Data.Aeson                         hiding (encode)
 import           Data.Aeson.Encode.Shim             (encode)
 import           Data.Aeson.Types
-import           Data.Attoparsec.Number
 import           Data.ByteString                    (ByteString)
 import           Data.ByteString.Lazy               (toStrict)
 import           Data.Char
 import           Data.Conduit
 import           Data.Default.Class
+import           Data.Default.Instances.Base
 import           Data.List
 import           Data.Maybe
 import           Data.Monoid                        hiding (All, Last)
