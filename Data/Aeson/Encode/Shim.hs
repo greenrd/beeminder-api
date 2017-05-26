@@ -72,8 +72,7 @@ import qualified Data.Vector                       as V
 import           Numeric                           (showHex)
 
 #if MIN_VERSION_bytestring(0,10,4)
-import           Data.Aeson.Encode                 (encode,
-                                                    encodeToByteStringBuilder)
+import           Data.Aeson                        (encode)
 #else
 import           Data.Aeson.Types                  (ToJSON (toJSON))
 import qualified Data.ByteString.Lazy              as BL
