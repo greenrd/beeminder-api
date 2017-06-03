@@ -9,17 +9,16 @@ description:         <<https://www.beeminder.com/images/logo_hi.png>>
 license:             BSD3
 license-file:        LICENSE
 author:              Daniel Wagner
-maintainer:          daniel@wagner-home.com, byorgey@gmail.com
-bug-reports:         http://github.com/dmwit/beeminder-api/issues
+maintainer:          greenrd@greenrd.org
+bug-reports:         http://github.com/greenrd/beeminder-api/issues
 copyright:           Copyright (C) 2013 Daniel Wagner
 category:            Network
 build-type:          Simple
 cabal-version:       >=1.10
-extra-source-files:  CHANGES.markdown, README.markdown
 
 source-repository head
   type: git
-  location: http://github.com/dmwit/beeminder-api.git
+  location: http://github.com/greenrd/beeminder-api.git
 
 library
   exposed-modules:   Network.Beeminder
